@@ -236,7 +236,8 @@ export default function VaccineTable() {
   const columns: ColumnDef<Vaccine>[] = [
     {
       accessorKey: "name",
-      header: "Vaccine",
+
+      header: "Vaccine",//updated head
       cell: ({ row }) => (
         <div className="h-10 px-4 font-medium">
           <div>{row.original.name}</div>

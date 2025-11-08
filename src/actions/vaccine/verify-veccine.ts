@@ -1,46 +1,27 @@
 "use server";
+import { eq } from "drizzle-orm";
 
-import { AUTH_CALLBACK_URL } from "@/config";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { db } from "@/lib/db";
+import { vaccine } from "../../../db/schema";
 
-export async function signIn({
-  email,
-  password,
-  rememberMe = false,
-  callbackURL = AUTH_CALLBACK_URL
-}: {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-  callbackURL?: string;
-}) {
+export async function verifyVaccine({ code }: { code: string }) {
   try {
-    const data = await auth.api.signInEmail({
-      body: {
-        email,
-        password,
-        rememberMe,
-        callbackURL,
-      },
-      headers: await headers(),
-    });
+    const result = await db.select().from(vaccine).where(eq(vaccine.code, code));
 
-    if (!data?.user) {
+    if (!result || result.length === 0) {
       return {
-        error: "Failed to sign in",
+        error: "Vaccine not found",
         user: null,
       };
     }
 
     return {
       error: null,
-      user: data.user,
+      vaccine: result[0],
     };
   } catch (error) {
-    console.error("Sign in error:", error);
     return {
-      error: error instanceof Error ? error.message : "Failed to sign in",
+      error: error instanceof Error ? error.message : "Failed to verify vaccine",
       user: null,
     };
   }

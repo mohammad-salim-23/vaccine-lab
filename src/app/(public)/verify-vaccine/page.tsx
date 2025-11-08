@@ -21,6 +21,8 @@ import {
   Calendar,
   Shield,
 } from "lucide-react";
+import { verifyVaccine } from "@/actions/vaccine/verify-veccine";
+import { vaccine } from "../../../../db/schema";
 
 // Mock vaccine data - replace with actual API call
 const mockVaccines = [
@@ -30,57 +32,21 @@ const mockVaccines = [
     name: "COVID-19 (mRNA-Pfizer-BioNTech)",
     manufacturer: "Pfizer-BioNTech",
     antigen: "SARS-CoV-2",
-    seriesName: "Primary Series",
-    doseCount: 2,
+    series_name: "Primary Series",
+    dose_count: 2,
     doseVolume: 0.3,
     doseUnit: "ml",
     route: "IM (Intramuscular)",
-    siteExamples: "Deltoid muscle (upper arm), Anterolateral thigh (for infants)",
-    minAgeMonths: 6,
+    site_examples: "Deltoid muscle (upper arm), Anterolateral thigh (for infants)",
+    min_age_months: 6,
     notes:
       "Store at -80°C to -60°C. Once thawed, may be stoblack at 2°C to 8°C for up to 10 weeks. After dilution, use within 6 hours. Do not refreeze.",
     approved: true,
     approvalDate: "2020-12-11",
   },
-  {
-    id: "2",
-    code: "CVX-212",
-    name: "COVID-19 (mRNA-Moderna)",
-    manufacturer: "Moderna",
-    antigen: "SARS-CoV-2",
-    seriesName: "Primary Series",
-    doseCount: 2,
-    doseVolume: 0.5,
-    doseUnit: "ml",
-    route: "IM (Intramuscular)",
-    siteExamples: "Deltoid muscle (upper arm)",
-    minAgeMonths: 6,
-    notes:
-      "Store at -50°C to -15°C. Once thawed, may be stoblack at 2°C to 8°C for up to 30 days. After first puncture, use within 6 hours.",
-    approved: true,
-    approvalDate: "2020-12-18",
-  },
-  {
-    id: "3",
-    code: "CVX-141",
-    name: "Influenza, seasonal, injectable",
-    manufacturer: "Various Manufacturers",
-    antigen: "Influenza virus",
-    seriesName: "Annual",
-    doseCount: 1,
-    doseVolume: 0.5,
-    doseUnit: "ml",
-    route: "IM (Intramuscular)",
-    siteExamples: "Deltoid muscle (upper arm)",
-    minAgeMonths: 6,
-    notes:
-      "Store at 2°C to 8°C. Do not freeze. Protect from light. Administer annually before flu season.",
-    approved: true,
-    approvalDate: "1945-04-13",
-  },
 ];
 
-type Vaccine = (typeof mockVaccines)[0];
+type Vaccine = (typeof vaccine.$inferSelect);
 
 const PageVerify = () => {
   const [vaccineCode, setVaccineCode] = useState("");
@@ -94,13 +60,30 @@ const PageVerify = () => {
     setIsSearching(true);
 
     // Simulate API call
-    setTimeout(() => {
-      const result = mockVaccines.find(
-        (vaccine) => vaccine.code.toLowerCase() === vaccineCode.toLowerCase()
-      );
+    setTimeout(async () => {
+      const result = await verifyVaccine({ code: vaccineCode });
 
-      if (result) {
-        setSearchResult(result);
+      if (result.vaccine) {
+        // Transform the API response to match the expected Vaccine type
+        const transformedVaccine: Vaccine = {
+          id: result.vaccine.id,
+          createdAt: result.vaccine.createdAt,
+          createdBy: result.vaccine.createdBy,
+          updatedAt: result.vaccine.updatedAt,
+          code: result.vaccine.code || "",
+          name: result.vaccine.name,
+          manufacturer: result.vaccine.manufacturer || "",
+          antigen: result.vaccine.antigen || "",
+          series_name: result.vaccine.series_name || "",
+          dose_count: result.vaccine.dose_count || 0,
+          dose_volume: result.vaccine.dose_volume,
+          dose_unit: result.vaccine.dose_unit || "ml",
+          route: result.vaccine.route || "",
+          site_examples: result.vaccine.site_examples || "",
+          min_age_months: result.vaccine.min_age_months,
+          notes: result.vaccine.notes || "",
+        };
+        setSearchResult(transformedVaccine);
       } else {
         setError("No vaccine found with the provided code. Please check the code and try again.");
       }
@@ -108,11 +91,7 @@ const PageVerify = () => {
     }, 800);
   };
 
-  const handleReset = () => {
-    setVaccineCode("");
-    setSearchResult(null);
-    setError("");
-  };
+
 
   return (
     <div className="min-h-screen bg-background py-8 sm:py-12 md:py-16">
@@ -135,7 +114,7 @@ const PageVerify = () => {
         <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
           {/* Search Form */}
           <Card className="border-black-100">
-           
+
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="vaccineCode" className="flex items-center gap-2 text-base">
@@ -161,6 +140,7 @@ const PageVerify = () => {
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button
+                  variant="default"
                   onClick={handleSearch}
                   disabled={!vaccineCode || isSearching}
                   className="w-full sm:w-auto bg-black-500 hover:bg-black-700 text-black"
@@ -169,21 +149,13 @@ const PageVerify = () => {
                   <Search className="w-4 h-4 mr-2" />
                   {isSearching ? "Searching..." : "Search Vaccine"}
                 </Button>
-                <Button
-                  onClick={handleReset}
-                  variant="outline"
-                  className="w-full sm:w-auto border-black-400 text-black-500 hover:bg-black-50 "
-                  size="lg"
-                >
-                  Clear
-                </Button>
               </div>
 
               {/* Sample Codes */}
               <div className="pt-4 border-t">
                 <p className="text-sm text-muted-foreground mb-2">Try these sample codes:</p>
                 <div className="flex flex-wrap gap-2">
-                  {mockVaccines.map((vaccine) => (
+                  {/* {mockVaccines.map((vaccine) => (
                     <Badge
                       key={vaccine.code}
                       variant="outline"
@@ -192,7 +164,7 @@ const PageVerify = () => {
                     >
                       {vaccine.code}
                     </Badge>
-                  ))}
+                  ))} */}
                 </div>
               </div>
             </CardContent>
@@ -230,12 +202,12 @@ const PageVerify = () => {
                         Code: {searchResult.code} • ID: {searchResult.id}
                       </CardDescription>
                     </div>
-                    {searchResult.approved && (
+                    {/* {searchResult.approved && (
                       <Badge className="bg-green-500 text-white hover:bg-green-600 shrink-0">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Approved
                       </Badge>
-                    )}
+                    )} */}
                   </div>
                 </CardHeader>
               </Card>
@@ -270,14 +242,14 @@ const PageVerify = () => {
                         <Layers className="w-4 h-4 text-black-500" />
                         Series Name
                       </p>
-                      <p className="font-medium text-base">{searchResult.seriesName}</p>
+                      <p className="font-medium text-base">{searchResult.series_name}</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-black-500" />
                         Minimum Age
                       </p>
-                      <p className="font-medium text-base">{searchResult.minAgeMonths} months</p>
+                      <p className="font-medium text-base">{searchResult.min_age_months} months</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground flex items-center gap-2">
@@ -285,11 +257,11 @@ const PageVerify = () => {
                         Approval Date
                       </p>
                       <p className="font-medium text-base">
-                        {new Date(searchResult.approvalDate).toLocaleDateString("en-US", {
+                        {/* {new Date(searchResult.approvalDate).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
-                        })}
+                        })} */}
                       </p>
                     </div>
                   </div>
@@ -311,12 +283,12 @@ const PageVerify = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Dose Count (Series)</p>
-                      <p className="font-medium text-base">{searchResult.doseCount} dose(s)</p>
+                      <p className="font-medium text-base">{searchResult.dose_count} dose(s)</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Dose Volume</p>
                       <p className="font-medium text-base">
-                        {searchResult.doseVolume} {searchResult.doseUnit}
+                        {searchResult.dose_volume} {searchResult.dose_unit}
                       </p>
                     </div>
                     <div className="space-y-1">
@@ -328,7 +300,7 @@ const PageVerify = () => {
                     </div>
                     <div className="space-y-1 sm:col-span-2">
                       <p className="text-sm text-muted-foreground">Injection Site Examples</p>
-                      <p className="font-medium text-base">{searchResult.siteExamples}</p>
+                      <p className="font-medium text-base">{searchResult.site_examples}</p>
                     </div>
                   </div>
                 </CardContent>

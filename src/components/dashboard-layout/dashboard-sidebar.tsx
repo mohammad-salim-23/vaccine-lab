@@ -5,6 +5,9 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -19,18 +22,18 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 
 const teams = [
   { id: "1", name: "Alpha Inc.", logo: Logo, plan: "Free" },
-  { id: "2", name: "Beta Corp.", logo: Logo, plan: "Free" },
-  { id: "3", name: "Gamma Tech", logo: Logo, plan: "Free" },
 ];
 
 export default function DashboardSidebar({ sidebarRoutes }: { sidebarRoutes: Route[] }) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const router = useRouter();
+  const session = authClient.getSession();
 
   const handleLogout = async () => {
     await authClient.signOut({
@@ -83,8 +86,31 @@ export default function DashboardSidebar({ sidebarRoutes }: { sidebarRoutes: Rou
       <SidebarContent className="gap-4 px-2 py-4">
         <DashboardNavigation routes={sidebarRoutes} />
       </SidebarContent>
-      <SidebarFooter className="px-2">
+      {/* <SidebarFooter className="px-2">
         <TeamSwitcher teams={teams} />
+      </SidebarFooter> */}
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton className="w-full h-12 px-3">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <Avatar className="h-8 w-8 rounded-full">
+                  <AvatarImage src="/avatar-01.png" alt="ephraim" />
+                  <AvatarFallback className="rounded-full">E</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 text-left min-w-0">
+                  <div className="text-sm font-medium truncate">Muhammad</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    ephraim@blocks.so
+                  </div>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon">
+                <LogOutIcon className="h-4 w-4 shrink-0" />
+              </Button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

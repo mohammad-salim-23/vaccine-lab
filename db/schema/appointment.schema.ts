@@ -3,13 +3,11 @@ import { getId } from "@/lib/get-id";
 import { user } from "./auth.schema";
 import { facility } from "./facility.schema";
 import { patient } from "./patient.schema";
+import { vaccine } from "./vaccine.schema";
 
 export const appointment = pgTable("appointment", {
   id: text("id").primaryKey().default(getId()),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  createdBy: varchar("created_by", { length: 100 })
-    .notNull()
-    .references(() => user.id),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
@@ -17,18 +15,20 @@ export const appointment = pgTable("appointment", {
   status: varchar("status").notNull(),
   regNo: varchar("reg_no").notNull(),
 
-  vaccinator: varchar("vaccinator")
+  vaccine: varchar("vaccine_id")
     .notNull()
-    .references(() => user.id),
+    .references(() => vaccine.id),
+  // vaccinator: varchar("vaccinator")
+  //   .notNull()
+  //   .references(() => user.id),
   patient: varchar("patient_id")
     .notNull()
     .references(() => patient.id),
 
   // Address Information
-  facility: text("facility")
-    .notNull()
-    .references(() => facility.id), // e.g., "City Hospital", "Downtown Clinic"
-  address: text("address").notNull(),
+  facility: text("facility").references(() => facility.id), // e.g., "City Hospital", "Downtown Clinic"
+  addressLine1: text("address_line1").notNull(),
+  addressLine2: text("address_line2"),
   city: text("city").notNull(),
   state: text("state").notNull(),
   zip: varchar("zip").notNull(),

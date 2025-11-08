@@ -21,7 +21,8 @@ export const patient = pgTable("patient", {
   phone: varchar("phone", { length: 15 }).notNull(),
 
   // Address Information
-  address: text("address").notNull(),
+  addressLine1: text("address_line1").notNull(),
+  addressLine2: text("address_line2"),
   city: text("city").notNull(),
   state: text("state").notNull(),
   zip: varchar("zip", { length: 10 }).notNull(),

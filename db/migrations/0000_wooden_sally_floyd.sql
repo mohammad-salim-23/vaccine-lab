@@ -71,7 +71,7 @@ CREATE TABLE "verification" (
 );
 --> statement-breakpoint
 CREATE TABLE "patient" (
-	"id" text PRIMARY KEY DEFAULT 'xvXnKglXFkTPPEbvdD99W' NOT NULL,
+	"id" text PRIMARY KEY DEFAULT 'mzDaWUgp1VLuEICoZFD0X' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"updated_by" varchar(100),
@@ -82,7 +82,8 @@ CREATE TABLE "patient" (
 	"mother_name" text,
 	"email" varchar(100) NOT NULL,
 	"phone" varchar(15) NOT NULL,
-	"address" text NOT NULL,
+	"address_line1" text NOT NULL,
+	"address_line2" text,
 	"city" text NOT NULL,
 	"state" text NOT NULL,
 	"zip" varchar(10) NOT NULL,
@@ -95,16 +96,16 @@ CREATE TABLE "patient" (
 );
 --> statement-breakpoint
 CREATE TABLE "appointment" (
-	"id" text PRIMARY KEY DEFAULT 'RJizl8Gh_EhN7XtvrkNqm' NOT NULL,
+	"id" text PRIMARY KEY DEFAULT '2PFf7Fo8vlN3kQLwK8arp' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"created_by" varchar(100) NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"status" varchar NOT NULL,
 	"reg_no" varchar NOT NULL,
-	"vaccinator" varchar NOT NULL,
+	"vaccine_id" varchar NOT NULL,
 	"patient_id" varchar NOT NULL,
-	"facility" text NOT NULL,
-	"address" text NOT NULL,
+	"facility" text,
+	"address_line1" text NOT NULL,
+	"address_line2" text,
 	"city" text NOT NULL,
 	"state" text NOT NULL,
 	"zip" varchar NOT NULL,
@@ -132,7 +133,7 @@ CREATE TABLE "vaccines" (
 );
 --> statement-breakpoint
 CREATE TABLE "facility" (
-	"id" text PRIMARY KEY DEFAULT 'SlMhYhto8-ZDZvmJkaACK' NOT NULL,
+	"id" text PRIMARY KEY DEFAULT 'MnAUHAxg8A0U66xwBeLub' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"created_by" varchar(100),
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -187,8 +188,7 @@ CREATE TABLE "vaccinations" (
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "patient" ADD CONSTRAINT "patient_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "appointment" ADD CONSTRAINT "appointment_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "appointment" ADD CONSTRAINT "appointment_vaccinator_user_id_fk" FOREIGN KEY ("vaccinator") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "appointment" ADD CONSTRAINT "appointment_vaccine_id_vaccines_id_fk" FOREIGN KEY ("vaccine_id") REFERENCES "public"."vaccines"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "appointment" ADD CONSTRAINT "appointment_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patient"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "appointment" ADD CONSTRAINT "appointment_facility_facility_id_fk" FOREIGN KEY ("facility") REFERENCES "public"."facility"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "vaccines" ADD CONSTRAINT "vaccines_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

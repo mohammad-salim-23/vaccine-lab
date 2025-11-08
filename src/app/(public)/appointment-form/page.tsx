@@ -1,9 +1,10 @@
-import AppointmentEntryForm from "@/components/appointment-form";
+import DynamicAppointmentForm from "@/components/dynamic-appointment-form";
 
 const PageAppointmentForm = () => {
     return (
-        <div className="p-4"> 
-            <AppointmentEntryForm/>
+        <div className="p-4">
+            {/* <AppointmentEntryForm/> */}
+            <DynamicAppointmentForm />
         </div>
     );
 }

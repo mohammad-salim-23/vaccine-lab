@@ -2,47 +2,78 @@
 
 import { AUTH_CALLBACK_URL } from "@/config";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { headers } from "next/headers";
+import { appointment, patient } from "../../../db/schema";
+import { getId } from "@/lib/get-id";
 
-export async function createAppointment({
-    name,
-    email,
-    password,
-    callbackURL = AUTH_CALLBACK_URL
-}: {
+type CreateAppointmentProps = {
     name: string;
+    dob: string;
+    gender: string;
+    fathersName: string;
+    mothersName: string;
     email: string;
-    password: string;
-    callbackURL?: string;
-}) {
-    try {
-        const data = await auth.api.signUpEmail({
-            body: {
-                name,
-                email,
-                password,
-                callbackURL,
-            },
-            headers: await headers(),
-        });
+    phone: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+    vaccinationType: string;
+    nationalId: string;
+};
 
-        if (!data?.user) {
-            return {
-                error: "Failed to create account",
-                user: null,
-            };
-        }
+export async function createAppointment(data: CreateAppointmentProps) {
+    const idLength = data.nationalId.length;
+    const patientId = getId();
+    const appointmentId = getId();
+    try {
+        const res = await db.transaction(async (tx) => {
+            const patientResult = await tx.insert(patient).values({
+                id: patientId,
+                name: data.name,
+                dob: new Date(data.dob),
+                gender: data.gender,
+                fatherName: data.fathersName,
+                motherName: data.mothersName,
+                email: data.email,
+                phone: data.phone,
+                addressLine1: data.addressLine1,
+                addressLine2: data.addressLine2,
+                city: data.city,
+                state: data.state,
+                zip: data.zip,
+                country: data.country,
+                nationalId: idLength === 10 ? data.nationalId : null,
+                birthCertificateId: idLength !== 10 ? data.nationalId : null,
+            }).returning({ id: patient.id });
+
+            await tx.insert(appointment).values({
+                id: appointmentId,
+                status: 'pending',
+                regNo: `REG-${Date.now()}`,
+                vaccine: data.vaccinationType,
+                patient: patientResult[0].id,
+                addressLine1: data.addressLine1,
+                addressLine2: data.addressLine2,
+                city: data.city,
+                state: data.state,
+                zip: data.zip,
+                country: data.country,
+            });
+        });
 
         return {
             error: null,
-            user: data.user,
-            token: data.token,
+            success: true,
         };
     } catch (error) {
-        console.error("Sign up error:", error);
+        console.error("Create appointment error:", error);
         return {
-            error: error instanceof Error ? error.message : "Failed to sign up",
-            user: null,
+            error: error instanceof Error ? error.message : "Failed to create appointment",
+            success: false,
         };
     }
 }

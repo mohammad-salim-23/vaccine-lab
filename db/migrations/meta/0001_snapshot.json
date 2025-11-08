@@ -1,6 +1,6 @@
 {
-  "id": "adde0721-9feb-4d5d-aac4-1f3e802b4eaf",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "0ee598c8-d2a9-4c02-9985-8ebc55ef9de9",
+  "prevId": "adde0721-9feb-4d5d-aac4-1f3e802b4eaf",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -469,7 +469,7 @@
           "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "'mzDaWUgp1VLuEICoZFD0X'"
+          "default": "'oTzVFDdKq2iSJARMbTpm_'"
         },
         "created_at": {
           "name": "created_at",
@@ -636,7 +636,7 @@
           "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "'2PFf7Fo8vlN3kQLwK8arp'"
+          "default": "'kevFFho05FJpB0qKp4XTv'"
         },
         "created_at": {
           "name": "created_at",
@@ -910,7 +910,7 @@
           "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "default": "'MnAUHAxg8A0U66xwBeLub'"
+          "default": "'TKKoNb3EM5VCUdyrrZFOd'"
         },
         "created_at": {
           "name": "created_at",
